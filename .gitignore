@@ -126,3 +126,6 @@ dmypy.json
 
 # test file
 *.csv
+
+#memo
+memo.txt
