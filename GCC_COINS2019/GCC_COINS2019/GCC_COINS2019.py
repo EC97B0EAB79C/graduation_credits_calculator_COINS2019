@@ -3,10 +3,67 @@ import sys
 import sqlite3
 import re
 
+class credit_T:
+    def __init__(self, ID, parent, data):
+        self.ID=ID
+        self.parent=parent
+        self.data=data
+
+        self.child=[]
+        self.course=[]
+        self.taken=0
+
+    def inc(self, num):
+        self.taken+=num
+        if self.parent!=None:
+            self.parent.inc(num)
+
+    def add_course(self, c):
+        self.course.append(c)
+        self.taken+=float(c[2])
+        if self.parent!=None:
+            self.parent.inc(float(c[2]))
+
+    def add_child(self, c):
+        self.child.append(c)
+
+
+def setTree(cursor ,courses_en, parent, indent=1):
+    cursor.execute("SELECT * FROM Grad_req WHERE Parent = {}".format(parent.ID))
+    Data=cursor.fetchall()
+    for d in Data:
+        credit_tree=credit_T(d[0],parent,d)
+        parent.add_child(credit_tree)
+
+        print('| '*indent+str(d))
+        r=re.compile(str(d[6]))
+        
+        for c in courses_en:
+            if re.search(str(d[6]),c[0]):
+                credit_tree.add_course(c)
+
+                print('| '*(indent+1)+str(c))
+
+        setTree(cursor ,courses_en, credit_tree, indent+1)
+
+
+def printTree(credit_tree, indent=0):
+    print('| '*indent+"{} {}:{}/{}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4]))
+    for c in credit_tree.child:
+        printTree(c,indent+1)
+
 
 def db_get(year, dept,courses_en):
     gradDB=sqlite3.connect(str(year)+"/"+dept+".db")
     cursor = gradDB.cursor()
+    
+    cursor.execute("SELECT * FROM Grad_req WHERE Parent = -1")
+    Data=cursor.fetchone()
+    print(Data)
+    master=credit_T(0,None,Data)
+    setTree(cursor ,courses_en, master)
+
+    printTree(master)
 
 
 def f_open(fname):
