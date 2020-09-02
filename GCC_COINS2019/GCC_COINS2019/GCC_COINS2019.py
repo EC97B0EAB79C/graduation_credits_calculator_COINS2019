@@ -12,23 +12,53 @@ class credit_T:
         self.child=[]
         self.course=[]
         self.taken=0
+        if self.data[5]==None:
+            self.lim=float(self.data[4])
+        else:
+            self.lim=float(self.data[5])
+        self.maxed=False
+        self.over=False
 
     def inc(self, num):
-        self.taken+=num
+        if self.lim!=-1:
+            if self.taken+num<=self.lim:
+                valid=num
+            else:
+                valid=max(0,self.lim-self.taken)
+                self.over=True
+        else:
+            valid=num
+
+        self.taken+=valid
+        if self.taken>=float(self.data[4]):
+            self.maxed=True
         if self.parent!=None:
-            self.parent.inc(num)
+            self.parent.inc(valid)
 
     def add_course(self, c):
         self.course.append(c)
-        self.taken+=float(c[2])
+
+        valid=0
+        if self.lim!=-1:
+            if self.taken+float(c[2])<=self.lim:
+                valid=float(c[2])
+            else:
+                valid=max(self.lim-self.taken,0)
+                self.over=True
+        else:
+            valid=float(c[2])
+
+        self.taken+=valid
+        if self.taken>=float(self.data[4]):
+            self.maxed=True
         if self.parent!=None:
-            self.parent.inc(float(c[2]))
+            self.parent.inc(valid)
 
     def add_child(self, c):
         self.child.append(c)
 
 
-def setTree(cursor ,courses_en, parent, indent=1):
+def setTree(cursor, parent, indent=1):
     cursor.execute("SELECT * FROM Grad_req WHERE Parent = {}".format(parent.ID))
     Data=cursor.fetchall()
     for d in Data:
@@ -37,23 +67,30 @@ def setTree(cursor ,courses_en, parent, indent=1):
 
         print('| '*indent+str(d))
         r=re.compile(str(d[6]))
-        
-        for c in courses_en:
-            if re.search(str(d[6]),c[0]):
+
+        setTree(cursor, credit_tree, indent+1)
+
+
+def appClass(type, credit_tree, courses_en):
+    if credit_tree.data[3]==(type):
+        for c in reversed(courses_en):
+            if re.search(str(credit_tree.data[6]),c[0]):
                 credit_tree.add_course(c)
+                courses_en.remove(c)
 
-                print('| '*(indent+1)+str(c))
-
-        setTree(cursor ,courses_en, credit_tree, indent+1)
-
+    for c in credit_tree.child:
+        appClass(type,c,courses_en)
+   
 
 def printTree(credit_tree, indent=0):
-    print('| '*indent+"{} {}:{}/{}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4]))
+    print('| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.maxed))
+    for c in credit_tree.course:
+        print('| '*(indent+1)+str(c))
     for c in credit_tree.child:
         printTree(c,indent+1)
 
 
-def db_get(year, dept,courses_en):
+def db_get(year, dept):
     gradDB=sqlite3.connect(str(year)+"/"+dept+".db")
     cursor = gradDB.cursor()
     
@@ -61,9 +98,11 @@ def db_get(year, dept,courses_en):
     Data=cursor.fetchone()
     print(Data)
     master=credit_T(0,None,Data)
-    setTree(cursor ,courses_en, master)
+    
+    setTree(cursor, master)
 
-    printTree(master)
+    return master
+    
 
 
 def f_open(fname):
@@ -98,7 +137,11 @@ def calculate(fname, dept, year):
     for i in courses_ing:
         print(i)
 
-    db_get(year, dept,courses_en)
+    masterTree=db_get(year, dept)
+    appClass(1,masterTree,courses_en)
+    appClass(2,masterTree,courses_en)
+    appClass(0,masterTree,courses_en)
+    printTree(masterTree)
     
 
 def main():
