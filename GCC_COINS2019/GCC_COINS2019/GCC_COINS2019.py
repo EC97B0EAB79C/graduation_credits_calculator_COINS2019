@@ -16,7 +16,7 @@ class credit_T:
             self.lim=float(self.data[4])
         else:
             self.lim=float(self.data[5])
-        self.maxed=False
+        self.fulfilled=False
         self.over=False
 
     def inc(self, num):
@@ -30,8 +30,6 @@ class credit_T:
             valid=num
 
         self.taken+=valid
-        if self.taken>=float(self.data[4]):
-            self.maxed=True
         if self.parent!=None:
             self.parent.inc(valid)
 
@@ -49,13 +47,19 @@ class credit_T:
             valid=float(c[2])
 
         self.taken+=valid
-        if self.taken>=float(self.data[4]):
-            self.maxed=True
         if self.parent!=None:
             self.parent.inc(valid)
 
     def add_child(self, c):
         self.child.append(c)
+
+    def cert(self):
+        if self.taken>=float(self.data[4]):
+            self.fulfilled=True
+        for c in self.child:
+            self.fulfilled=c.cert() and self.fulfilled
+        return self.fulfilled
+
 
 
 def setTree(cursor, parent, indent=1):
@@ -83,7 +87,10 @@ def appClass(type, credit_tree, courses_en):
    
 
 def printTree(credit_tree, indent=0):
-    print('| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.maxed))
+    message='| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
+    if credit_tree.over:
+        message+=" maxed"
+    print(message)
     for c in credit_tree.course:
         print('| '*(indent+1)+str(c))
     for c in credit_tree.child:
@@ -141,6 +148,7 @@ def calculate(fname, dept, year):
     appClass(1,masterTree,courses_en)
     appClass(2,masterTree,courses_en)
     appClass(0,masterTree,courses_en)
+    masterTree.cert()
     printTree(masterTree)
     
 
