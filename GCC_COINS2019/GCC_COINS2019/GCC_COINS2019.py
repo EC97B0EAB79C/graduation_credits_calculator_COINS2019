@@ -87,7 +87,8 @@ def appClass(type, credit_tree, courses_en):
    
 
 def printTree(credit_tree, indent=0):
-    message='| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
+#    message='| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
+    message='| '*indent+"{:<10}:{:<3}/{:<3} {}".format(credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
     if credit_tree.over:
         message+=" maxed"
     print(message)
@@ -144,11 +145,13 @@ def calculate(fname, dept, year):
     for i in courses_ing:
         print(i)
 
+    print("\nConstruct Requirement Tree")
     masterTree=db_get(year, dept)
     appClass(1,masterTree,courses_en)
     appClass(2,masterTree,courses_en)
     appClass(0,masterTree,courses_en)
     masterTree.cert()
+    print("\nResult")
     printTree(masterTree)
     
 
