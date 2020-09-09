@@ -54,6 +54,7 @@ class credit_T:
         self.child.append(c)
 
     def cert(self):
+        self.course.sort()
         if self.taken>=float(self.data[4]):
             self.fulfilled=True
         for c in self.child:

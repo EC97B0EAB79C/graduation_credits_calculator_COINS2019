@@ -1,6 +1,8 @@
 # graduation_credits_calculator_COINS2019
  Graduation credits calculator for University of Tsukuba COINS 2019
  
+ [日本語](./readme/readme_jp/README_JP.md)
+ 
 ## WARNING
 This calculator is not ready to be called perfect, please only use this for assistance.
 Since there are only a few test cases, sending your case with the method mention below is appreciated. If you find some special cases that are unimplemented, please send your case as a sample.
