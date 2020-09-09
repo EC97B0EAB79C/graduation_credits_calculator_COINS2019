@@ -89,7 +89,7 @@ def appClass(type, credit_tree, courses_en):
 
 def printTree(credit_tree, indent=0):
 #    message='| '*indent+"{} {}:{}/{} {}".format(credit_tree.ID,credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
-    message='| '*indent+"{:<10}:{:<3}/{:<3} {}".format(credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
+    message='| '*indent+"{:<10}:{:>5}/{:<5} {}".format(credit_tree.data[1],credit_tree.taken,credit_tree.data[4],credit_tree.fulfilled)
     if credit_tree.over:
         message+=" maxed"
     print(message)

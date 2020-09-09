@@ -17,3 +17,8 @@
  ## テストケースを送る方法。
  実装されていないケースを見つけた場合は、説明付きでケースを送信してください。
  テストケースのCVSファイルは**学籍番号・名前を削除し（列はそのままにする）、成績を合格した科目はすべて「P」に、不合格の科目は「D」に変更し**　dokkaebi@coins.tsukuba.ac.jp宛に送ってください。
+ 
+ ## Requirements
+ * Python3.7
+   * SQLite3
+   * Regular Expression(re)

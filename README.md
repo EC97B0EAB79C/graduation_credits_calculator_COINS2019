@@ -20,7 +20,7 @@ Since there are only a few test cases, sending your case with the method mention
  If you find any unimplemented case sending your case with an explanation is appreciated.
  Please send your grade CSV file with your **Student ID, NAME DELETED** and **ALL GRADES changed to 'P' for passed courses and 'D' for failed ones** and send to dokkaebi@coins.tsukuba.ac.jp.
  
- ## Technology
+ ## Technology(Requirements)
  Graduation credits calculator is bases on 
  * python 3.7
  * SQLite3
